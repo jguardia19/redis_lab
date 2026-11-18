@@ -4,16 +4,32 @@ declare(strict_types=1);
 
 use App\Controllers\ProductController;
 use App\Repositories\ProductRepository;
+use App\Services\ProductService;
+use App\Infrastructure\Cache\CacheService;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 try {
-    $pdo = require dirname(__DIR__) . '/Config/database.php';
+    $pdo = require dirname(__DIR__) . '/config/database.php';
+
+    $redis = require dirname(__DIR__) . '/config/redis.php';
+
+    $cache = new CacheService(
+        $redis,
+        $_ENV['REDIS_PREFIX'] ?? 'redis_lab:'
+    );
 
     $repository = new ProductRepository($pdo);
-    $controller = new ProductController($repository);
+
+    $service = new ProductService(
+        $repository,
+        $cache
+    );
+
+    $controller = new ProductController($service);
 
     $method = $_SERVER['REQUEST_METHOD'];
+
     $path = parse_url(
         $_SERVER['REQUEST_URI'],
         PHP_URL_PATH
@@ -43,7 +59,10 @@ try {
 
     http_response_code(404);
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Ruta no encontrada']);
+
+    echo json_encode([
+        'error' => 'Ruta no encontrada'
+    ]);
 
 } catch (Throwable $e) {
     error_log($e->getMessage());
