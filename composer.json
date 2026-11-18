@@ -1,0 +1,20 @@
+{
+    "name": "curso/redis-lab",
+    "description": "Laboratorio PHP MySQL Redis",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+             "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jose Guardia",
+            "email": "jguardia19@gmail.com"
+        }
+    ],
+    "require": {
+        "predis/predis": "^3.7",
+        "vlucas/phpdotenv": "^5.8"
+    }
+}
